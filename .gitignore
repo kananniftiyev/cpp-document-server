@@ -1,0 +1,9 @@
+# Build directory
+build/
+
+# CMake files
+CMakeCache.txt
+CMakeFiles/
+
+# Executable
+DocumentManager
