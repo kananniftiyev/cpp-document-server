@@ -2,40 +2,70 @@
 #include <filesystem>
 #include "spdlog/spdlog.h"
 #include <exception>
+#include "spdlog/sinks/basic_file_sink.h"
+#include <cstdlib>
 
 namespace fs = std::filesystem;
 
-// TODO: Auto finding of folders
-const fs::path DOWNLOADS_PATH{"/home/kananniftiyev/Downloads"};
-const fs::path DOCUMENTS_PATH{"/home/kananniftiyev/Documents"};
-
-void move_file()
+fs::path get_folder_path()
 {
+#ifdef _WIN32
+  char *user_profile = std::getenv("USERPROFILE");
+  if (user_profile)
+  {
+    return fs::path(user_profile);
+  }
+  else
+  {
+    throw std::runtime_error("Unable to locate USERPROFILE environment variable.");
+  }
+#elif __linux__
+  char *home_profile = std::getenv("HOME");
+  if (home_profile)
+  {
+    return fs::path(home_profile);
+  }
+  else
+  {
+    throw std::runtime_error("Unable to locate HOME environment variable.");
+  }
+#else
+  throw std::runtime_error("Unsupported platform.");
+#endif
+}
+
+// TODO: Check if same named file exist in documents
+void move_file(std::shared_ptr<spdlog::logger> logger)
+{
+  auto DOWNLOADS_PATH = get_folder_path() / "Downloads";
+  auto DOCUMENTS_PATH = get_folder_path() / "Documents";
+
   if (!fs::exists(DOWNLOADS_PATH))
   {
-    spdlog::error("Downloads path does not exist: {}", DOWNLOADS_PATH.string());
+    logger->error("Downloads path does not exist: {}", DOWNLOADS_PATH.string());
     return;
   }
 
   if (!fs::exists(DOCUMENTS_PATH))
   {
-    spdlog::error("Documents path does not exist: {}", DOCUMENTS_PATH.string());
+    logger->error("Documents path does not exist: {}", DOCUMENTS_PATH.string());
     return;
   }
 
-  for (auto file : fs::directory_iterator(DOWNLOADS_PATH))
+  // TODO: Log if no pdf file
+  for (auto const &file : fs::directory_iterator(DOWNLOADS_PATH))
   {
     try
     {
       if (file.path().extension() == ".pdf")
       {
         fs::rename(file.path(), DOCUMENTS_PATH / file.path().filename());
-        spdlog::info("Moved file: {} to {}", file.path().filename().string(), DOCUMENTS_PATH.string());
+        logger->info("Moved file: {} to {}", file.path().filename().string(), DOCUMENTS_PATH.string());
       }
     }
     catch (const std::exception &e)
     {
-      spdlog::error("Failed to move file {}: {}", file.path().filename().string(), e.what());
+      logger->error("Failed to move file {}: {}", file.path().filename().string(), e.what());
     }
   }
 }
@@ -44,7 +74,13 @@ int main()
 {
   try
   {
-    move_file();
+    auto logger = spdlog::basic_logger_mt("logger", "../logs/logs.txt");
+    spdlog::set_level(spdlog::level::info);
+    move_file(logger);
+  }
+  catch (const spdlog::spdlog_ex &ex)
+  {
+    std::cout << "Log init failed: " << ex.what() << std::endl;
   }
   catch (const std::exception &e)
   {
