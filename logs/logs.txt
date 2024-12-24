@@ -1,0 +1,6 @@
+[2024-12-24 14:50:20.812] [logger] [info] Moved file: Kanan_Niftiyev.pdf to /home/kananniftiyev/Documents
+[2024-12-24 14:58:53.711] [logger] [info] Moved file: Kanan_Niftiyev.pdf to /home/kananniftiyev/Documents
+[2024-12-24 15:08:43.824] [logger] [info] Moved file: Kanan_Niftiyev.pdf to /home/kananniftiyev/Documents
+[2024-12-24 15:11:38.774] [logger] [info] Moved file: Kanan_Niftiyev.pdf to /home/kananniftiyev/Documents
+[2024-12-24 15:12:06.803] [logger] [error] Failed to move file Kanan_Niftiyev.pdf: filesystem error: cannot copy: File exists [/home/kananniftiyev/Downloads/Kanan_Niftiyev.pdf] [/home/kananniftiyev/Documents/Kanan_Niftiyev.pdf]
+[2024-12-24 15:13:11.539] [logger] [info] Moved file: Kanan_Niftiyev.pdf to /home/kananniftiyev/Documents

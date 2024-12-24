@@ -7,7 +7,7 @@
 
 namespace fs = std::filesystem;
 
-fs::path get_folder_path()
+fs::path get_root_path()
 {
 #ifdef _WIN32
   char *user_profile = std::getenv("USERPROFILE");
@@ -34,11 +34,10 @@ fs::path get_folder_path()
 #endif
 }
 
-// TODO: Check if same named file exist in documents
 void move_file(std::shared_ptr<spdlog::logger> logger)
 {
-  auto DOWNLOADS_PATH = get_folder_path() / "Downloads";
-  auto DOCUMENTS_PATH = get_folder_path() / "Documents";
+  auto DOWNLOADS_PATH = get_root_path() / "Downloads";
+  auto DOCUMENTS_PATH = get_root_path() / "Documents";
 
   if (!fs::exists(DOWNLOADS_PATH))
   {
@@ -59,7 +58,9 @@ void move_file(std::shared_ptr<spdlog::logger> logger)
     {
       if (file.path().extension() == ".pdf")
       {
-        fs::rename(file.path(), DOCUMENTS_PATH / file.path().filename());
+        const auto copy_options = fs::copy_options::overwrite_existing | fs::copy_options::recursive;
+        fs::copy(file.path(), DOCUMENTS_PATH / file.path().filename(), copy_options);
+        fs::remove(file.path());
         logger->info("Moved file: {} to {}", file.path().filename().string(), DOCUMENTS_PATH.string());
       }
     }
